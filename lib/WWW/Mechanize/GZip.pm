@@ -37,6 +37,21 @@ There is a small webform, you can instantly test, whether a webserver supports
 gzip-compression on a particular URL:
 L<http://www.computerhandlung.de/www-mechanize-gzip.htm>
 
+=head2 METHODS
+
+=over 2
+
+=item prepare_request
+
+Adds 'Accept-Encoding' => 'gzip' to outgoing HTTP-headers before sending.
+
+=item send_request
+
+Unzips response-body if 'content-encoding' is 'gzip' and
+corrects 'content-length' to unzipped content-length.
+
+=back
+
 =head1 SEE ALSO
 
 L<WWW::Mechanize>
@@ -59,15 +74,15 @@ modify it under the same terms as Perl itself.
 
 package WWW::Mechanize::GZip;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 use strict;
+use warnings;
 use Compress::Zlib ();
 use base qw(WWW::Mechanize);
 
 ################################################################################
-sub prepare_request
-{
+sub prepare_request {
     my ($self, $request) = @_;
 
     # call baseclass-method to prepare request...
@@ -80,16 +95,14 @@ sub prepare_request
 }
 
 ################################################################################
-sub send_request
-{
+sub send_request {
     my ($self, $request, $arg, $size) = @_;
 
     # call baseclass-method to make the actual request
     my $response = $self->SUPER::send_request($request, $arg, $size);
 
     # check if response is declared as gzipped and decode it
-    if ($response && $response->headers->header('content-encoding') eq 'gzip')
-    {
+    if ($response && $response->headers->header('content-encoding') eq 'gzip') {
         # store original content-length in separate response-header
         $response->headers->header('x-content-length', length($response->{_content}));
         # decompress ...
