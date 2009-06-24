@@ -74,7 +74,7 @@ modify it under the same terms as Perl itself.
 
 package WWW::Mechanize::GZip;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 use strict;
 use warnings;
@@ -102,7 +102,7 @@ sub send_request {
     my $response = $self->SUPER::send_request($request, $arg, $size);
 
     # check if response is declared as gzipped and decode it
-    if ($response && $response->headers->header('content-encoding') eq 'gzip') {
+    if ($response && defined($response->headers->header('content-encoding')) && $response->headers->header('content-encoding') eq 'gzip') {
         # store original content-length in separate response-header
         $response->headers->header('x-content-length', length($response->{_content}));
         # decompress ...
